@@ -6,7 +6,7 @@ import (
 
 	"encoding/json"
 	"github.com/go-redis/redis"
-	"github.com/syariatifaris/go-mapreduce"
+	"github.com/syariatifaris/gomapreduce"
 )
 
 var UserIdentities []*gomapreduce.UserIdentity

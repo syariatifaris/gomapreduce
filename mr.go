@@ -30,7 +30,7 @@ type MapReduce struct {
 func (m *MapReduce) Map(identity *UserIdentity) {
 	m.Lock()
 	defer m.Unlock()
-	key := createKey(identity.Attributes)
+	key := createKey(Alphabetic(identity.Attributes))
 	if _, ok := m.identityGroups[key]; !ok {
 		m.identityGroups[key] = &IdentityGroup{
 			Attributes: identity.Attributes,
