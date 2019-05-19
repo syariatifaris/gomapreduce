@@ -20,9 +20,9 @@ func init() {
 func BenchmarkMapReduce(b *testing.B) {
 	mr := New()
 	for _, u := range UserIdentities {
-		mr.Map(u)
+		mr.Process(u)
 	}
-	mr.Process()
+	mr.Wait()
 }
 
 func BenchmarkBlocking(b *testing.B) {

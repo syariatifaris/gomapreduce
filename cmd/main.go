@@ -39,8 +39,8 @@ func main() {
 	start = time.Now()
 	mr := gomapreduce.New()
 	for _, u := range UserIdentities {
-		mr.Map(u)
+		mr.Process(u)
 	}
-	mr.Process()
+	mr.Wait()
 	fmt.Println("map reduce:", time.Since(start).Seconds())
 }

@@ -27,17 +27,24 @@ type MapReduce struct {
 	clt            *redis.Client
 }
 
-func (m *MapReduce) Map(identity *UserIdentity) {
+func (m *MapReduce) Process(identity *UserIdentity) {
+	go m.Reduce(m.Map(identity), identity)
+}
+
+func (m *MapReduce) Map(identity *UserIdentity) string {
+	return createKey(Alphabetic(identity.Attributes))
+}
+
+func (m *MapReduce) Reduce(key string, identity *UserIdentity) {
 	m.Lock()
 	defer m.Unlock()
-	key := createKey(Alphabetic(identity.Attributes))
 	if _, ok := m.identityGroups[key]; !ok {
 		m.identityGroups[key] = &IdentityGroup{
 			Attributes: identity.Attributes,
 			NIS:        []string{},
 		}
 		m.wg.Add(1)
-		go m.Reduce(key)
+		go m.Segment(key)
 	}
 	m.identityGroups[key].NIS = append(m.identityGroups[key].NIS, identity.NIS)
 	go func(r *redis.Client, id *UserIdentity) {
@@ -46,7 +53,7 @@ func (m *MapReduce) Map(identity *UserIdentity) {
 	}(m.clt, identity)
 }
 
-func (m *MapReduce) Reduce(key string) {
+func (m *MapReduce) Segment(key string) {
 	m.Lock()
 	defer m.Unlock()
 	cpgroup := m.identityGroups[key]
@@ -58,7 +65,7 @@ func (m *MapReduce) Reduce(key string) {
 	m.wg.Done()
 }
 
-func (m *MapReduce) Process() {
+func (m *MapReduce) Wait() {
 	m.wg.Wait()
 }
 
